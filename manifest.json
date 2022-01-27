@@ -3,12 +3,10 @@
   "description": "為成大選課系統注入來自 urschool 和 nckuhub 的評價🤖",
   "version": "1.0",
   "manifest_version": 3,
-  "background": {
-    "service_worker": "background.js"
-  },
-  "permissions": ["storage"],
+  "permissions": ["storage", "activeTab"],
   "action": {
     "default_popup": "popup.html",
+    "default_title": "NCKU Evaluator",      
     "default_icon": {
       "16": "assets/images/icons/app16.png",
       "32": "assets/images/icons/app32.png",
@@ -16,6 +14,14 @@
       "128": "assets/images/icons/app128.png"
     }
   },
+  "content_scripts": [
+    {
+      "run_at": "document_end",
+      "matches": ["https://course.ncku.edu.tw/*"],
+      "css":["./3rd party/Semantic-UI/semantic.css"],
+      "js": ["./3rd party/JQuery/jquery-3.6.0.min.js","./3rd party/Semantic-UI/semantic.min.js","content.js"]
+    }
+  ],
   "icons": {
     "16": "assets/images/icons/app16.png",
     "32": "assets/images/icons/app32.png",
