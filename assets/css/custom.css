@@ -48,3 +48,13 @@ my-text {
 .mt-5 {
   margin-top: 5px !important;
 }
+
+.my-button {
+  line-height: inherit !important;
+  font-size: inherit !important;
+}
+
+.my-popup {
+  position: absolute !important;
+  width: fit-content !important;
+}

@@ -18,7 +18,7 @@
     {
       "run_at": "document_end",
       "matches": ["https://course.ncku.edu.tw/*"],
-      "css":["./3rd party/Semantic-UI/semantic.css"],
+      "css":["./3rd party/Semantic-UI/semantic.css", "./assets/css/custom.css"],
       "js": ["./3rd party/JQuery/jquery-3.6.0.min.js","./3rd party/Semantic-UI/semantic.min.js","content.js"]
     }
   ],
