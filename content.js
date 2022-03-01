@@ -54,7 +54,7 @@ function filter_data(json_data) {
 }
 
 var json_data = {};
-
+// 接收資料
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   console.log("received");
   if (request.method == "response_data") {

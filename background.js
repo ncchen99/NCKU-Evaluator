@@ -2,7 +2,7 @@ async function get_data(url, type) {
   let res = await fetch(url);
   if (!res.ok) {
     console.log(`NETWORK ERROR: ${res.status}`);
-    return { err: res.status };
+    return { error: res.status };
   }
   return type == "json" ? await res.json() : await res.text();
 }
@@ -23,10 +23,9 @@ chrome.runtime.onMessage.addListener(async function (
       );
       var sha = `${item}-sha256`;
       var item_bk = item;
-      console.log(`sha:${sha}`);
       chrome.storage.local.get([sha], async function (result) {
-        if (result[sha] != data) {
-          console.log("Detected new data!");
+        if (result[sha] != data && !data.error) {
+          console.log("🥗");
           // Cookies.set(`${item}-sha256`, data, { expires: 30 });
           chrome.storage.local.set({ [sha]: data });
           json_data[item_bk] = await get_data(
@@ -39,9 +38,7 @@ chrome.runtime.onMessage.addListener(async function (
         } else {
           chrome.storage.local.get([item_bk], function (result) {
             json_data[item_bk] = result[item_bk];
-            console.log(
-              "Returning exist data： " + JSON.stringify(json_data[item_bk])
-            );
+            console.log("🐢： " + JSON.stringify(json_data[item_bk]));
           });
         }
       });
