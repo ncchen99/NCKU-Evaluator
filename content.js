@@ -58,10 +58,13 @@ var json_data = {};
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   console.log("received");
   if (request.method == "response_data") {
-    if (request.json_data) {
+    if (Object.keys(request.json_data).length != 0) {
       json_data = request.json_data;
       filter_data(json_data);
       sendResponse({ complete: "ok" });
+      $(".loading-btn").remove();
+    } else {
+      location.reload();
     }
   }
   return true;
@@ -71,6 +74,9 @@ if (
   $("table.table").length > 0 &&
   $("table.table > thead  > tr > th:nth-child(7)").html().includes("教師姓名")
 ) {
+  $("body").append(
+    `<div class="loading-btn"><i class="fa fa-spinner fa-spin"></i></div>`
+  );
   chrome.runtime.sendMessage({ method: "get_data" }, function (response) {
     if (response.complete == "ok") {
       console.log("👌👋");

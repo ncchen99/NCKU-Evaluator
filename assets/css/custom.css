@@ -58,3 +58,20 @@ my-text {
   position: absolute !important;
   width: fit-content !important;
 }
+
+.loading-btn {
+  box-shadow: 0 2px 4px 0 rgb(0 0 0 / 50%);
+  background-color: #04aa6d; /* Green background */
+  border: none; /* Remove borders */
+  color: white; /* White text */
+  padding: 14px 14px; /* Some padding */
+  font-size: 32px; /* Set a font size */
+  position: fixed;
+  left: 45px;
+  bottom: 45px;
+  width: 60px;
+  height: 60px;
+  border-radius: 35px;
+  z-index: 99;
+  display: flex;
+}
