@@ -29,6 +29,7 @@
       "js": [
         "./3rd party/JQuery/jquery-3.6.0.min.js",
         "./3rd party/Semantic-UI/semantic.min.js",
+        "./3rd party/js-cookie/js.cookie.min.js",
         "content.js"
       ]
     }
