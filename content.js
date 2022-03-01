@@ -1,15 +1,48 @@
 console.log("🤖🆙");
 //// content.js ////
-
-function display_data(profs_data, td, trIdx) {
+function formatter(type, data) {
+  var content = "";
+  if (type == "prof") {
+    var items = [
+      "姓名",
+      "授課系所",
+      "職稱",
+      "私心推薦",
+      "學到東西",
+      "口條好",
+      "課業壓力",
+      "給分甜度",
+      "平均成績",
+      "最高學歷",
+      "值得一提",
+      "綽號",
+      "點名方式",
+      "urschool_id",
+    ];
+    for (const key in data) {
+      for (var i = 0; i < 8; i++) {
+        if (data[key][0][i] != null) {
+          content += `${items[i]}:${"&nbsp".repeat(
+            15 - items[i].length - data[key][0][i].replace(" ★", "").length
+          )}${data[key][0][i].replace(" ★", "")}<br>`;
+        }
+      }
+    }
+  }
+  if (type == "course") {
+  }
+  return content;
+}
+function display_profs_data(profs_data, td, trIdx) {
   td.innerHTML = `
             <div class="medium fluid ui button my-button" id="button${trIdx}">
              ${td.innerHTML}
             </div>
             <div class="ui popup flowing bottom left transition hidden my-popup" id="popup${trIdx}">
-            <div class='header'>User Rating</div>${JSON.stringify(
+            <div class='header'></div><div class='content'>${formatter(
+              "prof",
               profs_data
-            )}<div class='content'><div class='ui star rating'><i class='active icon'></i><i class='active icon'></i><i class='active icon'></i><i class='active icon'></i><i class='active icon'></i></div></div>
+            )}</div>
             </div>`;
   $(`.button#button${trIdx}`)
     .mouseenter(function () {
@@ -26,7 +59,6 @@ function display_data(profs_data, td, trIdx) {
     });
 }
 function filter_data(json_data) {
-  console.log(json_data);
   $("table.table > thead  > tr > th:nth-child(7)")[0].style.width = "11%";
   // var profs_set = new Set();
   $("table.table > tbody  > tr:visible").each(function (trIdx, tr) {
@@ -47,7 +79,7 @@ function filter_data(json_data) {
               }
               console.log("fetching:" + value);
             });
-          display_data(profs_data, td, trIdx);
+          display_profs_data(profs_data, td, trIdx);
         }
       });
   });

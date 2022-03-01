@@ -75,3 +75,8 @@ my-text {
   z-index: 99;
   display: flex;
 }
+
+.ui.popup > .content {
+  font-size: medium;
+  line-height: 1.5em;
+}
