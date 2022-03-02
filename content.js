@@ -20,12 +20,23 @@ function formatter(type, data) {
       "urschool_id",
     ];
     for (const key in data) {
-      for (var i = 0; i < 8; i++) {
-        if (data[key][0][i] != null) {
-          content += `${items[i]}:${"&nbsp".repeat(
-            15 - items[i].length - data[key][0][i].replace(" ★", "").length
-          )}${data[key][0][i].replace(" ★", "")}<br>`;
+      if (Array.isArray(data[key][0])) {
+        if (Object.keys(data).length != 1)
+          content += `<div class="ui raised segment">`;
+        for (var i = 0; i < 8; i++) {
+          if (data[key][0][i] != null) {
+            content += `<p>${items[i]}:${data[key][0][i].replace(
+              " ★",
+              ""
+            )}</p>`;
+          }
         }
+        if (Object.keys(data).length != 1) content += `</div>`;
+      } else {
+        if (Object.keys(data).length != 1)
+          content += `<div class="ui raised segment">`;
+        content += `<p>${key}:${data[key][0].res}<p>`;
+        if (Object.keys(data).length != 1) content += `</div>`;
       }
     }
   }
@@ -39,23 +50,55 @@ function display_profs_data(profs_data, td, trIdx) {
              ${td.innerHTML}
             </div>
             <div class="ui popup flowing bottom left transition hidden my-popup" id="popup${trIdx}">
-            <div class='header'></div><div class='content'>${formatter(
-              "prof",
-              profs_data
-            )}</div>
+              <div class='header'></div><div class='content'>${formatter(
+                "prof",
+                profs_data
+              )}
+
+              </div>
             </div>`;
+
   $(`.button#button${trIdx}`)
     .mouseenter(function () {
-      // highlight the mouseover target
       var rect = $(`.button#button${trIdx}`)[0].getBoundingClientRect();
       $(`.popup#popup${trIdx}`).removeClass("hidden").addClass("visible");
+      var rect_popup = $(`.popup#popup${trIdx}`)[0].getBoundingClientRect();
+      var popup_height = rect_popup.bottom - rect_popup.top;
+      console.log(popup_height);
       $(`.popup#popup${trIdx}`)
-        .css("top", rect.bottom - document.body.getBoundingClientRect().top)
+        .css(
+          "top",
+          rect.bottom -
+            (popup_height + 10 + rect.bottom - rect.top) / 2 -
+            document.body.getBoundingClientRect().top
+        )
         .css("left", rect.left); //
     })
     .mouseleave(function () {
-      // highlight the mouseover target
-      $(`.popup#popup${trIdx}`).removeClass("visible").addClass("hidden");
+      setTimeout(function () {
+        if (!$(".popup#popup${trIdx}").is(":hover"))
+          $(`.popup#popup${trIdx}`).removeClass("visible").addClass("hidden");
+      }, 50);
+    });
+  $(`.popup#popup${trIdx}`)
+    .mouseenter(function () {
+      var rect = $(`.button#button${trIdx}`)[0].getBoundingClientRect();
+      $(`.popup#popup${trIdx}`).removeClass("hidden").addClass("visible");
+      var rect_popup = $(`.popup#popup${trIdx}`)[0].getBoundingClientRect();
+      var popup_height = rect_popup.bottom - rect_popup.top;
+      console.log(popup_height);
+      $(`.popup#popup${trIdx}`)
+        .css(
+          "top",
+          rect.bottom -
+            (popup_height + 10 + rect.bottom - rect.top) / 2 -
+            document.body.getBoundingClientRect().top
+        )
+        .css("left", rect.left);
+    })
+    .mouseleave(function () {
+      if (!$(`.button#button${trIdx}`).is(":hover"))
+        $(`.popup#popup${trIdx}`).removeClass("visible").addClass("hidden");
     });
 }
 function filter_data(json_data) {

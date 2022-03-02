@@ -76,7 +76,12 @@ my-text {
   display: flex;
 }
 
-.ui.popup > .content {
+.ui.popup {
+  overflow-y: auto;
+  max-height: 150px;
+  min-height: 50px;
+}
+/* .ui.popup > .content {
   font-size: medium;
   line-height: 1.5em;
-}
+} */
