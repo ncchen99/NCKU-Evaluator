@@ -43,12 +43,14 @@ chrome.runtime.onMessage.addListener(async function (
         }
       });
     });
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      chrome.tabs.sendMessage(tabs[0].id, {
-        method: "response_data",
-        json_data: json_data,
+    setTimeout(() => {
+      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        chrome.tabs.sendMessage(tabs[0].id, {
+          method: "response_data",
+          json_data: json_data,
+        });
       });
-    });
+    }, 100);
     sendResponse({ complete: "ok" });
     // return true from the event listener to indicate you wish to send a response asynchronously
     // (this will keep the message channel open to the other end until sendResponse is called).

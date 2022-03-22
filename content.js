@@ -1,6 +1,12 @@
 console.log("🤖🆙");
 window.json_data = {};
 //// content.js ////
+function shorten_string(string, len) {
+  if (string.length > len) {
+    string = string.substring(0, len - 1) + "...";
+  }
+  return string;
+}
 function formatter(type, data) {
   var content = "";
   if (type == "prof") {
@@ -28,7 +34,7 @@ function formatter(type, data) {
             <p style="clear: both;"><span style="float: left;"><b>${
               items[i]
             }</b></span>:<span style="float: right;">
-             ${data[key][0][i].replace(" ★", "")}
+             ${shorten_string(data[key][0][i].replace(" ★", ""), 9)}
             </span><p>`;
           }
         }
@@ -42,11 +48,21 @@ function formatter(type, data) {
   return content;
 }
 function fillin_popup(course_name, profs_data) {
+  course_name = shorten_string(course_name, 13);
   $("#popup > .content").html(`
       <div class="header">${course_name}</div>
       <div class="description">${formatter("prof", profs_data)}</div>
 `);
   $(`#popup`).removeClass("hidden").addClass("visible");
+}
+function get_professor_info(value) {
+  var profs_data = {};
+  if (value in window.json_data["urschool"]["professors"]) {
+    profs_data[value] = window.json_data["urschool"]["professors"][value];
+  } else {
+    profs_data[value] = [{ res: "找不到資料耶🥺" }];
+  }
+  return profs_data;
 }
 function make_btn(course_name, td, trIdx) {
   $(td).removeClass("sm");
@@ -61,14 +77,10 @@ function make_btn(course_name, td, trIdx) {
       // var rect = $(`.button#button${trIdx}`)[0].getBoundingClientRect();
       // filter data
       $(`#popup`).removeClass("visible").addClass("hidden");
-      var profs_data = {};
+
       //.addClass("ui segment").css("position", "list-item");
       var value = $(td).text().trim().replace("*", "<br>").split("<br>")[0];
-      if (value in window.json_data["urschool"]["professors"]) {
-        profs_data[value] = window.json_data["urschool"]["professors"][value];
-      } else {
-        profs_data[value] = [{ res: "找不到資料耶🥺" }];
-      }
+      var profs_data = get_professor_info(value);
       console.log("👋:" + value);
       fillin_popup(course_name, profs_data);
       // setTimeout(function () {
@@ -92,6 +104,18 @@ function make_btn(course_name, td, trIdx) {
     })
     .mouseleave(function () {
       $("#popup").removeClass("visible").addClass("hidden");
+    })
+    .click(function () {
+      var value = $(td).text().trim().replace("*", "<br>").split("<br>")[0];
+      var profs_data = get_professor_info(value);
+      console.log(profs_data);
+      window
+        .open(
+          "https://urschool.org/teacher/" +
+            Object.values(profs_data)[0][0].slice(-1)[0],
+          "_blank"
+        )
+        .focus();
     });
   // $(`.popup#popup${trIdx}`)
   //   .mouseenter(function () {
@@ -140,6 +164,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       $(".loading-btn").remove();
     } else {
       location.reload();
+      // 他是被逼ㄉ
     }
   }
   return true;
@@ -160,7 +185,7 @@ if (
   );
   chrome.runtime.sendMessage({ method: "get_data" }, function (response) {
     if (response.complete == "ok") {
-      console.log("👌👋");
+      console.log("👌");
     } else {
       console.log("📛");
     }
