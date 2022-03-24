@@ -5,7 +5,12 @@ function shorten_string(string, len) {
   if (string.length > len) {
     string = string.substring(0, len - 1) + "...";
   }
+  if (typeof string === "number") console.log(string);
+  string = color_text(string);
   return string;
+}
+function color_text(score) {
+  return score;
 }
 function formatter(type, data) {
   var content = "";

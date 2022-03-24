@@ -7,6 +7,26 @@ async function get_data(url, type) {
   return type == "json" ? await res.json() : await res.text();
 }
 
+const getLocalStorage = async (key) => {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.get([key], function (result) {
+      if (result[key] === undefined) {
+        resolve("");
+      } else {
+        resolve(result[key]);
+      }
+    });
+  });
+};
+
+const setLocalStorage = async (key, value) => {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.set({ [key]: value }, function () {
+      resolve();
+    });
+  });
+};
+
 var json_data = {};
 const resource_list = ["nckuhub", "urschool"];
 
@@ -22,41 +42,30 @@ chrome.runtime.onMessage.addListener(async function (
         "text"
       );
       var sha = `${item}-sha256`;
-      var item_bk = item;
-      chrome.storage.local.get([sha], async function (result) {
-        if (result[sha] != data && !data.error) {
-          console.log("🥗");
-          // Cookies.set(`${item}-sha256`, data, { expires: 30 });
-          chrome.storage.local.set({ [sha]: data });
-          json_data[item_bk] = await get_data(
-            `https://ncchen.ga/ncku-evaluation/data/${item_bk}.json`,
-            "json"
-          );
-          chrome.storage.local.set({
-            [item_bk]: json_data[item_bk],
-          });
-        } else {
-          chrome.storage.local.get([item_bk], function (result) {
-            json_data[item_bk] = result[item_bk];
-            console.log("🐢： " + JSON.stringify(json_data[item_bk]));
-          });
-        }
+      let sha_res = await getLocalStorage(sha);
+      if (sha_res != data && !data.error) {
+        console.log("🥗");
+        await setLocalStorage(sha, data);
+        json_data[item] = await get_data(
+          `https://ncchen.ga/ncku-evaluation/data/${item}.json`,
+          "json"
+        );
+        await setLocalStorage(item, json_data[item]);
+      } else {
+        let data = await getLocalStorage(item);
+        json_data[item] = data;
+        console.log("🥳");
+      }
+    });
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      chrome.tabs.sendMessage(tabs[0].id, {
+        method: "response_data",
+        json_data: json_data,
       });
     });
-    setTimeout(() => {
-      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        chrome.tabs.sendMessage(tabs[0].id, {
-          method: "response_data",
-          json_data: json_data,
-        });
-      });
-    }, 100);
-    sendResponse({ complete: "ok" });
-    // return true from the event listener to indicate you wish to send a response asynchronously
-    // (this will keep the message channel open to the other end until sendResponse is called).
-    // console.log("background get data event");
+    await sendResponse({ complete: "ok" });
   } else {
-    sendResponse({});
-  } // snub them.
+    await sendResponse({});
+  }
   return true;
 });
