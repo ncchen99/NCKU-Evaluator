@@ -57,12 +57,14 @@ chrome.runtime.onMessage.addListener(async function (
         console.log("🥳");
       }
     });
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      chrome.tabs.sendMessage(tabs[0].id, {
-        method: "response_data",
-        json_data: json_data,
+    setTimeout(() => {
+      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        chrome.tabs.sendMessage(tabs[0].id, {
+          method: "response_data",
+          json_data: json_data,
+        });
       });
-    });
+    }, 100);
     await sendResponse({ complete: "ok" });
   } else {
     await sendResponse({});
