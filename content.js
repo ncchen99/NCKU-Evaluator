@@ -5,12 +5,14 @@ function shorten_string(string, len) {
   if (string.length > len) {
     string = string.substring(0, len - 1) + "...";
   }
-  if (!isNaN(string) && !isNaN(parseFloat(string))) console.log(string);
-  string = color_text(string);
   return string;
 }
-function color_text(score) {
-  return score;
+function color_text(score, reverse) {
+  var color_table = ["#B03A2E", "#CA6F1E", "#D4AC0D", "#148F77", "#148F77"];
+  var idx = reverse
+    ? parseInt(6 - parseFloat(score))
+    : parseInt(parseFloat(score) - 1);
+  return `<b><font color="${color_table[idx]}">` + +score + "</font></b>";
 }
 function formatter(type, data) {
   var content = "";
@@ -22,7 +24,7 @@ function formatter(type, data) {
       "私心推薦",
       "學到東西",
       "口條好",
-      "課業壓力",
+      "課程涼度",
       "給分甜度",
       "平均成績",
       "最高學歷",
@@ -31,20 +33,21 @@ function formatter(type, data) {
       "點名方式",
       "urschool_id",
     ];
+    var score = ["私心推薦", "學到東西", "口條好", "給分甜度", "課程涼度"];
     for (const key in data) {
       if (Array.isArray(data[key][0])) {
-        for (var i = 0; i < 8; i++) {
+        for (var i = 0; i < 9; i++) {
           if (data[key][0][i] != null) {
             content += `
-            <p style="clear: both;"><span style="float: left;"><b>${
-              items[i]
-            }</b></span>:<span style="float: right;">
-             ${shorten_string(data[key][0][i].replace(" ★", ""), 9)}
-            </span><p>`;
+            <p style="clear: both;"><span style="float: left;"><b>${items[i]}</b></span>:<span style="float: right;">`;
+            if (score.includes(items[i]))
+              content += color_text(data[key][0][i].replace(" ★", ""), false);
+            else content += shorten_string(data[key][0][i], 9);
+            content += "</span></p>";
           }
         }
       } else {
-        content += `<p style="clear: both;"><span style="float: left;"><b>${key}</b></span>:<span style="float: right;">${data[key][0].res}</span><p>`;
+        content += `<p style="clear: both;"><span style="float: left;"><b>${key}</b></span>:<span style="float: right;">${data[key][0].res}</span></p>`;
       }
     }
   }
@@ -53,7 +56,7 @@ function formatter(type, data) {
   return content;
 }
 function fillin_popup(course_name, profs_data) {
-  course_name = shorten_string(course_name, 13);
+  course_name = shorten_string(course_name, 11);
   $("#popup > .content").html(`
       <div class="header">${course_name}</div>
       <div class="description">${formatter("prof", profs_data)}</div>
