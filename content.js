@@ -17,7 +17,7 @@ function color_text(score, reverse) {
 }
 function formatter(type, data) {
   var content = "";
-  if (type == "prof") {
+  if (type == "professors") {
     window.profs_items[window.profs_items.indexOf("課業壓力")] = "課程涼度";
     var score = ["私心推薦", "學到東西", "口條好", "給分甜度", "課程涼度"];
     for (const key in data) {
@@ -37,59 +37,81 @@ function formatter(type, data) {
       }
     }
   }
-  if (type == "course") {
+  if (type == "courses") {
   }
   return content;
 }
-function fillin_popup(course_name, profs_data) {
+function fillin_popup(course_name, data, category) {
   course_name = shorten_string(course_name, 11);
   $("#popup > .content").html(`
       <div class="header">${course_name}</div>
-      <div class="description">${formatter("prof", profs_data)}</div>
+      <div class="description">${formatter(category, data)}</div>
 `);
   $(`#popup`).removeClass("hidden").addClass("visible");
 }
-function get_professor_info(value) {
-  var profs_data = {};
-  if (value in window.json_data["urschool"]["professors"]) {
-    profs_data[value] = window.json_data["urschool"]["professors"][value];
+function get_info(value, category) {
+  var data = {};
+  params = { professors: "urschool", courses: "nckuhub" };
+  if (value in window.json_data[params[category]][category]) {
+    data[value] = window.json_data[params[category]][category][value];
   } else {
-    profs_data[value] = [{ res: "找不到資料耶🥺" }];
+    data[value] = [{ res: "找不到資料耶🥺" }];
   }
-  return profs_data;
+  return data;
 }
-function make_btn(course_name, td, trIdx) {
+
+function make_btn(course_name, td, trIdx, course_id, category) {
   $(td).removeClass("sm");
-  td.innerHTML = `
-            <div class="medium fluid ui button my-button" id="button${trIdx}">
-             ${td.innerHTML}
+  // console.log(td.querySelector("a").innerHTML);
+  try {
+    var content = `
+            <div class="medium fluid ui button my-button ${
+              category == "courses" ? "courses-button" : ""
+            }" id="button-${category}-${trIdx}">
+             ${
+               category == "courses"
+                 ? td.querySelector("a").innerHTML
+                 : td.innerHTML
+             }
             </div>
             `;
-
-  $(`.button#button${trIdx}`)
+    if (category == "courses") {
+      td.querySelector("a").innerHTML = content;
+      if (!$(td).children(".ips").length) $(td).find("br").remove();
+    } else td.innerHTML = content;
+  } catch {
+    console.log("😵");
+  }
+  $(`.button#button-${category}-${trIdx}`)
     .mouseenter(function () {
       // filter data
       // $(`#popup`).removeClass("visible").addClass("hidden");
-
-      var value = $(td).text().trim().replace("*", "<br>").split("<br>")[0];
-      var profs_data = get_professor_info(value);
-      console.log("👋:" + value);
-      fillin_popup(course_name, profs_data);
+      if (category == "professors") {
+        var value = $(td).text().trim().replace("*", "<br>").split("<br>")[0];
+        var prof_data = get_info(value, category);
+        console.log("👋:" + value);
+        fillin_popup(course_name, prof_data, category);
+      } else {
+        var course_data = get_info(course_id, category);
+        console.log("👋:" + course_id);
+        fillin_popup(course_name, course_data, category);
+      }
     })
     .mouseleave(function () {
       $("#popup").removeClass("visible").addClass("hidden");
     })
     .click(function () {
-      var value = $(td).text().trim().replace("*", "<br>").split("<br>")[0];
-      var profs_data = get_professor_info(value);
-      console.log(profs_data);
-      window
-        .open(
-          "https://urschool.org/teacher/" +
-            Object.values(profs_data)[0][0].slice(-1)[0],
-          "_blank"
-        )
-        .focus();
+      if (category == "professors") {
+        var value = $(td).text().trim().replace("*", "<br>").split("<br>")[0];
+        var prof_data = get_info(value, category);
+        window
+          .open(
+            "https://urschool.org/teacher/" +
+              Object.values(prof_data)[0][0].slice(-1)[0],
+            "_blank"
+          )
+          .focus();
+      }
     });
 }
 function modify_html() {
@@ -97,11 +119,15 @@ function modify_html() {
   // var profs_set = new Set();
   $("table.table > tbody  > tr:visible").each(function (trIdx, tr) {
     course_name = $(tr).find(".course_name").text().trim();
+    course_id = $(tr).find(".dept_seq").text().trim();
     $(tr)
       .find("td")
       .each(function (tdIdx, td) {
+        if (tdIdx == 4) {
+          make_btn(course_name, td, trIdx, course_id, "courses");
+        }
         if (tdIdx == 6) {
-          make_btn(course_name, td, trIdx);
+          make_btn(course_name, td, trIdx, course_id, "professors");
         }
       });
   });

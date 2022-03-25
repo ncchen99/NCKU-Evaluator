@@ -53,6 +53,11 @@ my-text {
   line-height: inherit !important;
   font-size: inherit !important;
 }
+.courses-button {
+  /* display: inline-block !important; */
+  margin-bottom: 8px !important;
+  width: max-content !important;
+}
 
 .my-popup {
   position: absolute !important;
