@@ -54,11 +54,20 @@ my-text {
   font-size: inherit !important;
 }
 .courses-button {
+  font-size: inherit;
   /* display: inline-block !important; */
-  margin-bottom: 8px !important;
-  width: max-content !important;
+  /* margin-bottom: 6px !important; */
+  /* width: max-content !important; */
+  /* max-width: 100%; */
+  /* width: max-content; */
 }
-
+.my-label {
+  display: inline-block;
+  margin: 0 0.5em 0 0;
+  padding: 0.4em 0.833em;
+  min-width: 3em;
+  text-align: center;
+}
 .my-popup {
   position: absolute !important;
   width: fit-content !important;

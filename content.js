@@ -38,6 +38,29 @@ function formatter(type, data) {
     }
   }
   if (type == "courses") {
+    var items = ["收穫", "甜度", "涼度"];
+    var color_table = ["red", "orange", "yellow", "olive", "green"];
+    content += `
+    <div class="ui divided selection list">`;
+    for (const key in data) {
+      if (Array.isArray(data[key]) && data[key][0] != "0.0") {
+        for (var i = 0; i < 3; i++) {
+          content += `
+          <a class="item" style="clear: both;">
+          <span style="float: left; margin: 10px 0;"><b>${
+            items[i]
+          }：</b></span><div class="ui ${
+            color_table[parseInt(parseInt(data[key][i]) / 2.5)]
+          } label my-label" style="float: right; margin: 4px 0;">${Math.round(
+            parseFloat(data[key][i])
+          )}
+          </div>
+          </a>`;
+        }
+      } else {
+        content += `<p style="clear: both;"><span style="float: left;"><b>${key}</b></span>:<span style="float: right;">找不到耶🥺</span></p>`;
+      }
+    }
   }
   return content;
 }
@@ -65,9 +88,11 @@ function make_btn(course_name, td, trIdx, course_id, category) {
   // console.log(td.querySelector("a").innerHTML);
   try {
     var content = `
-            <div class="medium fluid ui button my-button ${
-              category == "courses" ? "courses-button" : ""
-            }" id="button-${category}-${trIdx}">
+            <div class="${
+              category != "courses" ? "medium fluid ui button my-button" : ""
+            } ${
+      category == "courses" ? "courses-button" : ""
+    }" id="button-${category}-${trIdx}">
              ${
                category == "courses"
                  ? td.querySelector("a").innerHTML
@@ -82,7 +107,7 @@ function make_btn(course_name, td, trIdx, course_id, category) {
   } catch {
     console.log("😵");
   }
-  $(`.button#button-${category}-${trIdx}`)
+  $(`#button-${category}-${trIdx}`)
     .mouseenter(function () {
       // filter data
       // $(`#popup`).removeClass("visible").addClass("hidden");
