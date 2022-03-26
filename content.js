@@ -50,7 +50,7 @@ function formatter(type, data) {
           <span style="float: left; margin: 10px 0;"><b>${
             items[i]
           }：</b></span><div class="ui ${
-            color_table[parseInt(parseInt(data[key][i]) / 2.5)]
+            color_table[parseInt(Math.round(parseFloat(data[key][i]) / 2.5))]
           } label my-label" style="float: right; margin: 4px 0;">${Math.round(
             parseFloat(data[key][i])
           )}
