@@ -11,23 +11,25 @@ function shorten_string(string, len) {
 function color_text(score, reverse) {
   var color_table = ["#B03A2E", "#CA6F1E", "#D4AC0D", "#148F77", "#148F77"];
   var idx = reverse
-    ? parseInt(6 - parseFloat(score))
+    ? parseInt(5 - parseFloat(score))
     : parseInt(parseFloat(score) - 1);
   return `<b><font color="${color_table[idx]}">` + +score + "</font></b>";
 }
 function formatter(type, data) {
   var content = "";
   if (type == "professors") {
-    window.profs_items[window.profs_items.indexOf("課業壓力")] = "課程涼度";
-    var score = ["私心推薦", "學到東西", "口條好", "給分甜度", "課程涼度"];
+    // window.profs_items[window.profs_items.indexOf("課業壓力")] = "課程涼度";
+    var score = ["私心推薦", "學到東西", "口條好", "給分甜度"];
     for (const key in data) {
       if (Array.isArray(data[key][0])) {
         for (var i = 0; i < 9; i++) {
           if (data[key][0][i] != null) {
             content += `
-            <p style="clear: both;"><span style="float: left;"><b>${window.profs_items[i]}</b></span>:<span style="float: right;">`;
+            <p style="clear: both;"><span style="float: left;"><b>${window.profs_items[i]}：</b></span><span style="float: right;">`;
             if (score.includes(window.profs_items[i]))
               content += color_text(data[key][0][i].replace(" ★", ""), false);
+            else if ("課業壓力" == window.profs_items[i])
+              content += color_text(data[key][0][i].replace(" ★", ""), true);
             else content += shorten_string(data[key][0][i], 9);
             content += "</span></p>";
           }
@@ -46,16 +48,22 @@ function formatter(type, data) {
       if (Array.isArray(data[key]) && data[key][0] != "0.0") {
         for (var i = 0; i < 3; i++) {
           content += `
-          <a class="item" style="clear: both;">
-          <span style="float: left; margin: 10px 0;"><b>${
-            items[i]
-          }：</b></span><div class="ui ${
-            color_table[parseInt(Math.round(parseFloat(data[key][i]) / 2.5))]
-          } label my-label" style="float: right; margin: 4px 0;">${Math.round(
-            parseFloat(data[key][i])
-          )}
-          </div>
-          </a>`;
+          <div class="ui label">
+  ${items[i]}
+  <div class="ui ${
+    color_table[parseInt(Math.round(parseFloat(data[key][i]) / 2.5))]
+  } label my-label">${Math.round(parseFloat(data[key][i]))}</div>
+</div>`;
+          // <a class="item" style="clear: both;">
+          // <span style="float: left; margin: 10px 0;"><b>${
+          //   items[i]
+          // }：</b></span><div class="ui ${
+          //   color_table[parseInt(Math.round(parseFloat(data[key][i]) / 2.5))]
+          // } label my-label" style="float: right; margin: 4px 0;">${Math.round(
+          //   parseFloat(data[key][i])
+          // )}
+          // </div>
+          // </a>`;
         }
       } else {
         content += `<p style="clear: both;"><span style="float: left;"><b>${key}</b></span>:<span style="float: right;">找不到耶🥺</span></p>`;
@@ -90,9 +98,7 @@ function make_btn(course_name, td, trIdx, course_id, category) {
     var content = `
             <div class="${
               category != "courses" ? "medium fluid ui button my-button" : ""
-            } ${
-      category == "courses" ? "courses-button" : ""
-    }" id="button-${category}-${trIdx}">
+            } " id="button-${category}-${trIdx}">
              ${
                category == "courses"
                  ? td.querySelector("a").innerHTML
@@ -102,7 +108,7 @@ function make_btn(course_name, td, trIdx, course_id, category) {
             `;
     if (category == "courses") {
       td.querySelector("a").innerHTML = content;
-      if (!$(td).children(".ips").length) $(td).find("br").remove();
+      // if (!$(td).children(".ips").length) $(td).find("br").remove();
     } else td.innerHTML = content;
   } catch {
     console.log("😵");

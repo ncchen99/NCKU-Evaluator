@@ -64,13 +64,24 @@ my-text {
 .my-label {
   display: inline-block;
   margin: 0 0.5em 0 0;
-  padding: 0.4em 0.833em;
-  min-width: 3em;
+  padding: 0.2em 0.2em;
+  min-width: 2em;
   text-align: center;
 }
 .my-popup {
   position: absolute !important;
   width: fit-content !important;
+}
+.my-course-label {
+  display: inline-block;
+  margin: 0; /*0.14285714em */
+  background-color: #e8e8e8;
+  background-image: none;
+  padding: 0.1em 0.3em 0em 0.3em;
+  border: 0 solid transparent;
+  border-radius: 0.28571429rem;
+  /* -webkit-transition: background .1s ease; */
+  transition: background 0.1s ease;
 }
 
 .loading-btn {
