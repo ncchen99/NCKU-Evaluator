@@ -97,7 +97,9 @@ function make_btn(course_name, td, trIdx, course_id, category) {
   try {
     var content = `
             <div class="${
-              category != "courses" ? "medium fluid ui button my-button" : ""
+              category != "courses"
+                ? "medium fluid ui button my-button"
+                : "my-course-label"
             } " id="button-${category}-${trIdx}">
              ${
                category == "courses"
