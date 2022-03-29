@@ -173,7 +173,11 @@ function modify_html() {
 }
 
 // 接收資料
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(async function (
+  request,
+  sender,
+  sendResponse
+) {
   console.log("🐍");
   if (request.method == "response_data") {
     if (Object.keys(request.json_data).length != 0) {

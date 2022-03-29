@@ -30,11 +30,7 @@ const setLocalStorage = async (key, value) => {
 var json_data = {};
 const resource_list = ["nckuhub", "urschool"];
 
-chrome.runtime.onMessage.addListener(async function (
-  request,
-  sender,
-  sendResponse
-) {
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.method == "get_data") {
     resource_list.forEach(async (item) => {
       let data = await get_data(
@@ -63,12 +59,11 @@ chrome.runtime.onMessage.addListener(async function (
           method: "response_data",
           json_data: json_data,
         });
-        return true;
       });
     }, 200);
-    await sendResponse({ complete: "ok" });
+    sendResponse({ complete: "ok" });
   } else {
-    await sendResponse({});
+    sendResponse({});
   }
   return true;
 });
