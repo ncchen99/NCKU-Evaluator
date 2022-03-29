@@ -63,8 +63,9 @@ my-text {
 }
 .my-label {
   display: inline-block;
+  font-size: 1em !important;
   margin: 0 0.5em 0 0;
-  padding: 0.2em 0.2em;
+  padding: 0 0 0 2em;
   min-width: 2em;
   text-align: center;
 }
@@ -75,6 +76,7 @@ my-text {
 .my-course-label {
   display: inline-block;
   margin: 0; /*0.14285714em */
+  margin-top: 3px;
   background-color: #e8e8e8;
   background-image: none;
   padding: 0.1em 0.3em 0em 0.3em;
@@ -83,7 +85,9 @@ my-text {
   /* -webkit-transition: background .1s ease; */
   transition: background 0.1s ease;
 }
-
+.my-labels {
+  margin-top: 5px;
+}
 .loading-btn {
   box-shadow: 0 2px 4px 0 rgb(0 0 0 / 50%);
   background-color: #04aa6d; /* Green background */

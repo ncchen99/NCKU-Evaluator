@@ -48,7 +48,7 @@ function formatter(type, data) {
       if (Array.isArray(data[key]) && data[key][0] != "0.0") {
         for (var i = 0; i < 3; i++) {
           content += `
-          <div class="ui label">
+          <div class="ui label my-label" style="padding-left: 5px !important">
   ${items[i]}
   <div class="ui ${
     color_table[parseInt(Math.round(parseFloat(data[key][i]) / 2.5))]
@@ -66,7 +66,7 @@ function formatter(type, data) {
           // </a>`;
         }
       } else {
-        content += `<p style="clear: both;"><span style="float: left;"><b>${key}</b></span>:<span style="float: right;">找不到耶🥺</span></p>`;
+        content += `<div class="my-course-label">找不到資料🥺</div>`;
       }
     }
   }
@@ -86,7 +86,7 @@ function get_info(value, category) {
   if (value in window.json_data[params[category]][category]) {
     data[value] = window.json_data[params[category]][category][value];
   } else {
-    data[value] = [{ res: "找不到資料耶🥺" }];
+    data[value] = [{ res: "找不到資料🥺" }];
   }
   return data;
 }
@@ -97,9 +97,7 @@ function make_btn(course_name, td, trIdx, course_id, category) {
   try {
     var content = `
             <div class="${
-              category != "courses"
-                ? "medium fluid ui button my-button"
-                : "my-course-label"
+              category != "courses" ? "medium fluid ui button my-button" : ""
             } " id="button-${category}-${trIdx}">
              ${
                category == "courses"
@@ -125,9 +123,9 @@ function make_btn(course_name, td, trIdx, course_id, category) {
         console.log("👋:" + value);
         fillin_popup(course_name, prof_data, category);
       } else {
-        var course_data = get_info(course_id, category);
+        // var course_data = get_info(course_id, category);
         console.log("👋:" + course_id);
-        fillin_popup(course_name, course_data, category);
+        // fillin_popup(course_name, course_data, category);
       }
     })
     .mouseleave(function () {
@@ -157,7 +155,15 @@ function modify_html() {
       .find("td")
       .each(function (tdIdx, td) {
         if (tdIdx == 4) {
-          make_btn(course_name, td, trIdx, course_id, "courses");
+          // make_btn(course_name, td, trIdx, course_id, "courses");
+          var course_data = get_info(course_id, "courses");
+          if (
+            course_data[course_id].length > 1 &&
+            course_data[course_id][3]["課程名稱"] == course_name
+          )
+            $(td).append(`<div class="ui labels my-labels">
+                        ${formatter("courses", course_data)}</div>`);
+          else $(td).append(`<div class="my-course-label">找不到資料🥺</div>`);
         }
         if (tdIdx == 6) {
           make_btn(course_name, td, trIdx, course_id, "professors");
