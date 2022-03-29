@@ -3,7 +3,10 @@
   "description": "為成大選課系統注入來自 urschool 和 nckuhub 的評價🤖",
   "version": "1.0",
   "manifest_version": 3,
-  "host_permissions": ["https://ncchen.ga/*"],
+  "host_permissions": [
+    "https://ncchen.ga/*",
+    "https://raw.githubusercontent.com/*"
+  ],
   "permissions": ["storage", "activeTab"],
   "background": {
     "service_worker": "background.js"
