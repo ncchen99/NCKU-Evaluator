@@ -63,6 +63,7 @@ chrome.runtime.onMessage.addListener(async function (
           method: "response_data",
           json_data: json_data,
         });
+        return true;
       });
     }, 200);
     await sendResponse({ complete: "ok" });

@@ -40,7 +40,7 @@ function formatter(type, data) {
     }
   }
   if (type == "courses") {
-    var items = ["收穫", "甜度", "涼度"];
+    var items = ["收穫", "涼度", "甜度"];
     var color_table = ["red", "orange", "yellow", "olive", "green"];
     content += `
     <div class="ui divided selection list">`;
@@ -51,8 +51,8 @@ function formatter(type, data) {
           <div class="ui label my-label" style="padding-left: 5px !important">
   ${items[i]}
   <div class="ui ${
-    color_table[parseInt(Math.round(parseFloat(data[key][i]) / 2.5))]
-  } label my-label">${Math.round(parseFloat(data[key][i]))}</div>
+    color_table[Math.round(parseInt(data[key][i]) / 2.5)]
+  } label my-label">${parseInt(data[key][i])}</div>
 </div>`;
           // <a class="item" style="clear: both;">
           // <span style="float: left; margin: 10px 0;"><b>${
