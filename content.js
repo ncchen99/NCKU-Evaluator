@@ -135,13 +135,14 @@ function make_btn(course_name, td, trIdx, course_id, category) {
       if (category == "professors") {
         var value = $(td).text().trim().replace("*", "<br>").split("<br>")[0];
         var prof_data = get_info(value, category);
-        window
-          .open(
-            "https://urschool.org/teacher/" +
-              Object.values(prof_data)[0][0].slice(-1)[0],
-            "_blank"
-          )
-          .focus();
+        if (Array.isArray(Object.values(prof_data)[0][0]))
+          window
+            .open(
+              "https://urschool.org/teacher/" +
+                Object.values(prof_data)[0][0].slice(-1)[0],
+              "_blank"
+            )
+            .focus();
       }
     });
 }
