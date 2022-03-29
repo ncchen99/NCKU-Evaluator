@@ -63,7 +63,7 @@ my-text {
 }
 .my-label {
   display: inline-block;
-  font-size: 1em !important;
+  font-size: 0.9em !important;
   margin: 0 0.5em 0 0;
   padding: 0 0 0 2em;
   min-width: 2em;
