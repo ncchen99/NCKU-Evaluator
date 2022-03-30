@@ -206,6 +206,7 @@ if (
   );
   chrome.runtime.sendMessage({ method: "get_data" }, function (response) {
     if (response.complete == "ok") {
+      console.log("🙉");
       console.log("👌");
     } else {
       console.log("📛");
