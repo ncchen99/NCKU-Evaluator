@@ -1,5 +1,5 @@
 # NCKU-Evaluator
-一款 Chrome Extension 為成大選課系統注入來自 urschool 和 nckuhub 的評價🤖 還在努力開發，雖然最近比較忙🥺 歡迎發 PR 😍
+一款 Chrome Extension 為成大選課系統注入來自 urschool 和 nckuhub 的評價🤖 還在努力開發，最近比較忙🥺 歡迎發 PR 😍
 
 ## 1. 下載下來
 ![image](https://user-images.githubusercontent.com/28551630/160381597-8b5a2182-eee9-4e33-bcbf-e839f237c310.png)
