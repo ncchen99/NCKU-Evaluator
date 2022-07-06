@@ -91,34 +91,54 @@ function get_info(value, category) {
   return data;
 }
 
-function make_btn(course_name, td, trIdx, course_id, category) {
+// filters out all blocks of plain text as a string array
+// reference: https://stackoverflow.com/questions/68364942/get-innertext-and-split-by-br
+function html_filter(html) {
+  return html.replace(/\n/g, "<br>").split("<br>").map(e => e.replace(/\<(.*)\>/g, '').trim()).filter(e => e)
+}
+
+// turns a html string to an element
+function htmlToElem(html) {
+  let temp = document.createElement('template');
+  html = html.trim(); // Never return a space text node as a result
+  temp.innerHTML = html;
+  return temp.content.firstChild;
+}
+
+// turns td into button(s)
+// if the content of td contains two or more lines, it will call make_btn() multiple times, thus generating multiple buttons
+function td2btn(course_name, td, trIdx, course_id, category) {
   $(td).removeClass("sm");
-  // console.log(td.querySelector("a").innerHTML);
+  td_content = category == "courses"
+    ? td.querySelector("a").innerHTML
+    : html_filter(td.innerHTML)
+  td.innerHTML = '';
+
+  td_content.forEach(element => make_btn(course_name,td,trIdx,course_id,category,element))
+}
+
+function make_btn(course_name, td, trIdx, course_id, category, value) {
   try {
     var content = `
             <div class="${
               category != "courses" ? "medium fluid ui button my-button" : ""
-            } " id="button-${category}-${trIdx}">
-             ${
-               category == "courses"
-                 ? td.querySelector("a").innerHTML
-                 : td.innerHTML
-             }
+            } " id="button-${category}-${trIdx}-${value}">
+             ${value}
             </div>
             `;
     if (category == "courses") {
-      td.querySelector("a").innerHTML = content;
+      td.querySelector("a").innerHTML += content;
       // if (!$(td).children(".ips").length) $(td).find("br").remove();
-    } else td.innerHTML = content;
+    } else td.appendChild(htmlToElem(content));
   } catch {
     console.log("😵");
   }
-  $(`#button-${category}-${trIdx}`)
+  $(`#button-${category}-${trIdx}-${value}`)
     .mouseenter(function () {
       // filter data
       // $(`#popup`).removeClass("visible").addClass("hidden");
       if (category == "professors") {
-        var value = $(td).text().trim().replace("*", "<br>").split("<br>")[0];
+        var value = $(this)[0].innerText;
         var prof_data = get_info(value, category);
         console.log("👋:" + value);
         fillin_popup(course_name, prof_data, category);
@@ -133,7 +153,7 @@ function make_btn(course_name, td, trIdx, course_id, category) {
     })
     .click(function () {
       if (category == "professors") {
-        var value = $(td).text().trim().replace("*", "<br>").split("<br>")[0];
+        var value = $(this)[0].innerText;
         var prof_data = get_info(value, category);
         if (Array.isArray(Object.values(prof_data)[0][0]))
           window
@@ -167,7 +187,7 @@ function modify_html() {
           else $(td).append(`<div class="my-course-label">找不到資料🥺</div>`);
         }
         if (tdIdx == 6) {
-          make_btn(course_name, td, trIdx, course_id, "professors");
+          td2btn(course_name, td, trIdx, course_id, "professors");
         }
       });
   });
