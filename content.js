@@ -127,7 +127,7 @@ function make_btn(course_name, td, trIdx, course_id, category, value) {
             </div>
             `;
     if (category == "courses") {
-      td.querySelector("a").innerHTML += content;
+      td.querySelector("a").appendChild(htmlToElem(content));
       // if (!$(td).children(".ips").length) $(td).find("br").remove();
     } else td.appendChild(htmlToElem(content));
   } catch {
