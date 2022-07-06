@@ -114,7 +114,7 @@ function td2btn(course_name, td, trIdx, course_id, category) {
     : html_filter(td.innerHTML)
   td.innerHTML = '';
 
-  td_content.forEach(element => make_btn(course_name,td,trIdx,course_id,category,element))
+  td_content.forEach(element => make_btn(course_name,td,trIdx,course_id,category,element.replace("*", "")))
 }
 
 function make_btn(course_name, td, trIdx, course_id, category, value) {
