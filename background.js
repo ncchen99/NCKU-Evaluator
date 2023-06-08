@@ -34,7 +34,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.method == "get_data") {
     resource_list.forEach(async (item) => {
       let data = await get_data(
-        `https://ncchen.ga/ncku-evaluation/data/${item}-sha256.txt`,
+        `https://ncchen99.github.io/ncku-evaluation/data/${item}-sha256.txt`,
         "text"
       );
       var sha = `${item}-sha256`;
@@ -43,7 +43,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         console.log("🥗");
         await setLocalStorage(sha, data);
         json_data[item] = await get_data(
-          `https://ncchen.ga/ncku-evaluation/data/${item}.json`,
+          `https://ncchen99.github.io/ncku-evaluation/data/${item}.json`,
           "json"
         );
         await setLocalStorage(item, json_data[item]);
