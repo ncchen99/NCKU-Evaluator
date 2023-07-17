@@ -5,7 +5,8 @@
   "manifest_version": 3,
   "host_permissions": [
     "https://ncchen99.github.io/*",
-    "https://raw.githubusercontent.com/*"
+    "https://raw.githubusercontent.com/*",
+    "https://ncchen.gay/*"
   ],
   "permissions": ["storage", "activeTab"],
   "background": {
