@@ -25,17 +25,22 @@ function formatter(type, data) {
         for (var i = 0; i < 9; i++) {
           if (data[key][0][i] != null) {
             content += `
-            <p style="clear: both;"><span style="float: left;"><b>${window.profs_items[i]}：</b></span><span style="float: right;">`;
-            if (score.includes(window.profs_items[i]))
+            <p style="clear: both;"><span style="float: left;"><b>${
+              window.profs_items[i]
+            }：</b></span><span style="float: right;">`;
+            if (score.includes(window.profs_items[i])) {
               content += color_text(data[key][0][i].replace(" ★", ""), false);
-            else if ("課業壓力" == window.profs_items[i])
+            } else if ("課業壓力" == window.profs_items[i]) {
               content += color_text(data[key][0][i].replace(" ★", ""), true);
-            else content += shorten_string(data[key][0][i], 9);
+            } else content += shorten_string(data[key][0][i], 9);
             content += "</span></p>";
           }
         }
       } else {
-        content += `<p style="clear: both;"><span style="float: left;"><b>${key}</b></span>:<span style="float: right;">${data[key][0].res}</span></p>`;
+        content +=
+          `<p style="clear: both;"><span style="float: left;"><b>${key}</b></span>:<span style="float: right;">${
+            data[key][0].res
+          }</span></p>`;
       }
     }
   }
@@ -51,8 +56,8 @@ function formatter(type, data) {
           <div class="ui label my-label" style="padding-left: 5px !important">
   ${items[i]}
   <div class="ui ${
-    color_table[Math.round(parseInt(data[key][i]) / 2.5)]
-  } label my-label">${parseInt(data[key][i])}</div>
+            color_table[Math.round(parseInt(data[key][i]) / 2.5)]
+          } label my-label">${parseInt(data[key][i])}</div>
 </div>`;
           // <a class="item" style="clear: both;">
           // <span style="float: left; margin: 10px 0;"><b>${
@@ -97,13 +102,11 @@ function make_btn(course_name, td, trIdx, course_id, category) {
   try {
     var content = `
             <div class="${
-              category != "courses" ? "medium fluid ui button my-button" : ""
-            } " id="button-${category}-${trIdx}">
+      category != "courses" ? "medium fluid ui button my-button" : ""
+    } " id="button-${category}-${trIdx}">
              ${
-               category == "courses"
-                 ? td.querySelector("a").innerHTML
-                 : td.innerHTML
-             }
+      category == "courses" ? td.querySelector("a").innerHTML : td.innerHTML
+    }
             </div>
             `;
     if (category == "courses") {
@@ -135,14 +138,15 @@ function make_btn(course_name, td, trIdx, course_id, category) {
       if (category == "professors") {
         var value = $(td).text().trim().replace("*", "<br>").split("<br>")[0];
         var prof_data = get_info(value, category);
-        if (Array.isArray(Object.values(prof_data)[0][0]))
+        if (Array.isArray(Object.values(prof_data)[0][0])) {
           window
             .open(
               "https://urschool.org/teacher/" +
                 Object.values(prof_data)[0][0].slice(-1)[0],
-              "_blank"
+              "_blank",
             )
             .focus();
+        }
       }
     });
 }
@@ -161,10 +165,12 @@ function modify_html() {
           if (
             course_data[course_id].length > 1 &&
             course_data[course_id][3]["課程名稱"] == course_name
-          )
+          ) {
             $(td).append(`<div class="ui labels my-labels">
                         ${formatter("courses", course_data)}</div>`);
-          else $(td).append(`<div class="my-course-label">找不到資料🥺</div>`);
+          } else {$(td).append(
+              `<div class="my-course-label">找不到資料🥺</div>`,
+            );}
         }
         if (tdIdx == 6) {
           make_btn(course_name, td, trIdx, course_id, "professors");
@@ -176,17 +182,20 @@ function modify_html() {
 // 接收資料
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   console.log("🐍");
-  if (request.method == "response_data") {
-    if (Object.keys(request.json_data).length != 0) {
-      window.json_data = request.json_data;
-      window.profs_items = window.json_data["urschool"]["column names"];
-      modify_html();
-      sendResponse({ complete: "ok" });
-      $(".loading-btn").remove();
-    } else {
+  switch (request.method) {
+    case "response_data":
+      if (Object.keys(request.json_data).length != 0) {
+        window.json_data = request.json_data;
+        window.profs_items = window.json_data["urschool"]["column names"];
+        modify_html();
+        sendResponse({ complete: "ok" });
+        $(".loading-btn").remove();
+      }
+      break;
+    default:
       location.reload();
+      break;
       // 他是被逼ㄉ
-    }
   }
   return true;
 });
@@ -196,19 +205,22 @@ if (
   $("table.table > thead  > tr > th:nth-child(7)").html().includes("教師姓名")
 ) {
   $("body").append(
-    `<div class="loading-btn"><i class="fa fa-spinner fa-spin"></i></div>`
+    `<div class="loading-btn"><i class="fa fa-spinner fa-spin"></i></div>`,
   );
   $("body").append(
     `<div class="ui card" id="popup">
     <div class="content">
     </div>
-  </div>`
+  </div>`,
   );
   chrome.runtime.sendMessage({ method: "get_data" }, function (response) {
-    if (response.complete == "ok") {
-      console.log("👌");
-    } else {
-      console.log("📛");
+    switch (response.complete) {
+      case "ok":
+        console.log("👌");
+        break;
+      default:
+        console.log("📛");
+        break;
     }
   });
 }

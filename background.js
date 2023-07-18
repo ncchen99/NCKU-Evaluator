@@ -30,40 +30,53 @@ const setLocalStorage = async (key, value) => {
 var json_data = {};
 const resource_list = ["nckuhub", "urschool"];
 
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  if (request.method == "get_data") {
-    resource_list.forEach(async (item) => {
-      let data = await get_data(
-        `https://ncchen99.github.io/ncku-evaluation/data/${item}-sha256.txt`,
-        "text"
+var json_data_proxy = new Proxy(json_data, {
+  set: function (target, key, value) {
+    target[key] = value;
+    if (Object.keys(target).length == resource_list.length) {
+      chrome.tabs.query(
+        { active: true, currentWindow: true },
+        function (tabs) {
+          chrome.tabs.sendMessage(tabs[0].id, {
+            method: "response_data",
+            json_data: json_data,
+          });
+        },
       );
-      var sha = `${item}-sha256`;
-      let sha_res = await getLocalStorage(sha);
-      if (sha_res != data && !data.error) {
-        console.log("🥗");
-        await setLocalStorage(sha, data);
-        json_data[item] = await get_data(
-          `https://ncchen99.github.io/ncku-evaluation/data/${item}.json`,
-          "json"
+    }
+    return true;
+  },
+});
+
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  switch (request.method) {
+    case "get_data":
+      resource_list.forEach(async (item) => {
+        let latest_hash = await get_data(
+          `https://ncchen.gay/ncku-evaluation/data/${item}-sha256.txt`,
+          "text",
         );
-        await setLocalStorage(item, json_data[item]);
-      } else {
-        let data = await getLocalStorage(item);
-        json_data[item] = data;
+        var sha = `${item}-sha256`;
+        let sha_res = await getLocalStorage(sha);
+        if (!latest_hash.error && sha_res != latest_hash) {
+          console.log("🥗");
+          await setLocalStorage(sha, latest_hash);
+          await setLocalStorage(
+            item,
+            await get_data(
+              `https://ncchen.gay/ncku-evaluation/data/${item}.json`,
+              "json",
+            ),
+          );
+        }
+        json_data_proxy[item] = await getLocalStorage(item);
         console.log("🥳");
-      }
-    });
-    setTimeout(() => {
-      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        chrome.tabs.sendMessage(tabs[0].id, {
-          method: "response_data",
-          json_data: json_data,
-        });
       });
-    }, 200);
-    sendResponse({ complete: "ok" });
-  } else {
-    sendResponse({});
+      sendResponse({ complete: "ok" });
+      break;
+    default:
+      sendResponse({});
+      break;
   }
   return true;
 });
