@@ -1,10 +1,15 @@
 async function get_data(url, type) {
-  let res = await fetch(url);
-  if (!res.ok) {
-    console.log(`NETWORK ERROR: ${res.status}`);
-    return { error: res.status };
+  try {
+    let res = await fetch(url);
+    if (!res.ok) {
+      console.log(`NETWORK ERROR: ${res.status}`);
+      return { error: res.status };
+    }
+    return type == "json" ? await res.json() : await res.text();
+  } catch (e) {
+    console.log(`FETCH ERROR: ${e}`);
+    return { error: e };
   }
-  return type == "json" ? await res.json() : await res.text();
 }
 
 const getLocalStorage = async (key) => {
@@ -46,15 +51,23 @@ var json_data_proxy = new Proxy(json_data, {
     }
     return true;
   },
+  deleteProperty: function (target, prop) {
+    if (prop in target) {
+      delete target[prop];
+    }
+  }
 });
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   switch (request.method) {
     case "get_data":
       resource_list.forEach(async (item) => {
+        delete json_data_proxy[item];
+      });
+      resource_list.forEach(async (item) => {
         let latest_hash = await get_data(
-          `https://ncchen.gay/ncku-evaluation/data/${item}-sha256.txt`,
-          "text",
+          `https://ncchen99.github.io/ncku-evaluation/data/${item}-sha256.txt`,
+          "text"
         );
         var sha = `${item}-sha256`;
         let sha_res = await getLocalStorage(sha);
@@ -64,8 +77,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
           await setLocalStorage(
             item,
             await get_data(
-              `https://ncchen.gay/ncku-evaluation/data/${item}.json`,
-              "json",
+              `https://ncchen99.github.io/ncku-evaluation/data/${item}.json`,
+              "json"
             ),
           );
         }

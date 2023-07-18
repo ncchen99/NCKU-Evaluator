@@ -25,9 +25,8 @@ function formatter(type, data) {
         for (var i = 0; i < 9; i++) {
           if (data[key][0][i] != null) {
             content += `
-            <p style="clear: both;"><span style="float: left;"><b>${
-              window.profs_items[i]
-            }：</b></span><span style="float: right;">`;
+            <p style="clear: both;"><span style="float: left;"><b>${window.profs_items[i]
+              }：</b></span><span style="float: right;">`;
             if (score.includes(window.profs_items[i])) {
               content += color_text(data[key][0][i].replace(" ★", ""), false);
             } else if ("課業壓力" == window.profs_items[i]) {
@@ -38,8 +37,7 @@ function formatter(type, data) {
         }
       } else {
         content +=
-          `<p style="clear: both;"><span style="float: left;"><b>${key}</b></span>:<span style="float: right;">${
-            data[key][0].res
+          `<p style="clear: both;"><span style="float: left;"><b>${key}</b></span>:<span style="float: right;">${data[key][0].res
           }</span></p>`;
       }
     }
@@ -55,9 +53,8 @@ function formatter(type, data) {
           content += `
           <div class="ui label my-label" style="padding-left: 5px !important">
   ${items[i]}
-  <div class="ui ${
-            color_table[Math.round(parseInt(data[key][i]) / 2.5)]
-          } label my-label">${parseInt(data[key][i])}</div>
+  <div class="ui ${color_table[Math.round(parseInt(data[key][i]) / 2.5)]
+            } label my-label">${parseInt(data[key][i])}</div>
 </div>`;
           // <a class="item" style="clear: both;">
           // <span style="float: left; margin: 10px 0;"><b>${
@@ -101,12 +98,10 @@ function make_btn(course_name, td, trIdx, course_id, category) {
   // console.log(td.querySelector("a").innerHTML);
   try {
     var content = `
-            <div class="${
-      category != "courses" ? "medium fluid ui button my-button" : ""
-    } " id="button-${category}-${trIdx}">
-             ${
-      category == "courses" ? td.querySelector("a").innerHTML : td.innerHTML
-    }
+            <div class="${category != "courses" ? "medium fluid ui button my-button" : ""
+      } " id="button-${category}-${trIdx}">
+             ${category == "courses" ? td.querySelector("a").innerHTML : td.innerHTML
+      }
             </div>
             `;
     if (category == "courses") {
@@ -142,7 +137,7 @@ function make_btn(course_name, td, trIdx, course_id, category) {
           window
             .open(
               "https://urschool.org/teacher/" +
-                Object.values(prof_data)[0][0].slice(-1)[0],
+              Object.values(prof_data)[0][0].slice(-1)[0],
               "_blank",
             )
             .focus();
@@ -168,9 +163,11 @@ function modify_html() {
           ) {
             $(td).append(`<div class="ui labels my-labels">
                         ${formatter("courses", course_data)}</div>`);
-          } else {$(td).append(
+          } else {
+            $(td).append(
               `<div class="my-course-label">找不到資料🥺</div>`,
-            );}
+            );
+          }
         }
         if (tdIdx == 6) {
           make_btn(course_name, td, trIdx, course_id, "professors");
@@ -195,7 +192,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     default:
       location.reload();
       break;
-      // 他是被逼ㄉ
+    // 他是被逼ㄉ
   }
   return true;
 });

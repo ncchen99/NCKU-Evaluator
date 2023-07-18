@@ -5,10 +5,12 @@
   "manifest_version": 3,
   "host_permissions": [
     "https://ncchen99.github.io/*",
-    "https://raw.githubusercontent.com/*",
-    "https://ncchen.gay/*"
+    "https://raw.githubusercontent.com/*"
   ],
-  "permissions": ["storage", "activeTab"],
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
   "background": {
     "service_worker": "background.js"
   },
@@ -24,8 +26,10 @@
   },
   "content_scripts": [
     {
-      "run_at": "document_idle",
-      "matches": ["https://course.ncku.edu.tw/*"],
+      "run_at": "document_end",
+      "matches": [
+        "https://course.ncku.edu.tw/*"
+      ],
       "css": [
         "./3rd party/Semantic-UI/semantic.css",
         "./assets/css/custom.css",
