@@ -31,39 +31,45 @@ var json_data = {};
 const resource_list = ["nckuhub", "urschool"];
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  if (request.method == "get_data") {
-    resource_list.forEach(async (item) => {
-      let data = await get_data(
-        `https://ncchen99.github.io/ncku-evaluation/data/${item}-sha256.txt`,
-        "text"
-      );
-      var sha = `${item}-sha256`;
-      let sha_res = await getLocalStorage(sha);
-      if (sha_res != data && !data.error) {
-        console.log("🥗");
-        await setLocalStorage(sha, data);
-        json_data[item] = await get_data(
-          `https://ncchen99.github.io/ncku-evaluation/data/${item}.json`,
-          "json"
+  switch (request.method) {
+    case "get_data":
+      resource_list.forEach(async (item) => {
+        let data = await get_data(
+          `https://ncchen99.github.io/ncku-evaluation/data/${item}-sha256.txt`,
+          "text",
         );
-        await setLocalStorage(item, json_data[item]);
-      } else {
-        let data = await getLocalStorage(item);
-        json_data[item] = data;
-        console.log("🥳");
-      }
-    });
-    setTimeout(() => {
-      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        chrome.tabs.sendMessage(tabs[0].id, {
-          method: "response_data",
-          json_data: json_data,
-        });
+        var sha = `${item}-sha256`;
+        let sha_res = await getLocalStorage(sha);
+        if (sha_res != data && !data.error) {
+          console.log("🥗");
+          await setLocalStorage(sha, data);
+          json_data[item] = await get_data(
+            `https://ncchen99.github.io/ncku-evaluation/data/${item}.json`,
+            "json",
+          );
+          await setLocalStorage(item, json_data[item]);
+        } else {
+          let data = await getLocalStorage(item);
+          json_data[item] = data;
+          console.log("🥳");
+        }
       });
-    }, 200);
-    sendResponse({ complete: "ok" });
-  } else {
-    sendResponse({});
+      setTimeout(() => {
+        chrome.tabs.query(
+          { active: true, currentWindow: true },
+          function (tabs) {
+            chrome.tabs.sendMessage(tabs[0].id, {
+              method: "response_data",
+              json_data: json_data,
+            });
+          },
+        );
+      }, 200);
+      sendResponse({ complete: "ok" });
+      break;
+    default:
+      sendResponse({});
+      break;
   }
   return true;
 });
