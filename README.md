@@ -5,6 +5,10 @@
 > - nckuhub：每次執行 [ncku-evaluation](https://github.com/ncchen99/ncku-evaluation/tree/data) 的爬蟲都會抓當學期最新的課程評價。
 > - urschool：urschool.org 已在 2026 年初停止服務，老師評價停在 2025-06 最後一次抓到的資料，不會再更新。
 
+**功能**
+- 課程欄位顯示 nckuhub 的收穫／涼度／甜度，滑鼠移上去可以看評分人數和大家意見的分散程度。
+- 老師欄位每位老師一個名牌，旁邊是 urschool 的私心推薦分數；多位老師合授時全部都會列出來，超過 4 位會收合成「+N 位」，滑鼠移到名牌上可以看完整評價。
+
 ## 1. 下載下來
 ![image](https://user-images.githubusercontent.com/28551630/160381597-8b5a2182-eee9-4e33-bcbf-e839f237c310.png)
 

@@ -18,29 +18,19 @@ function color_text(score, reverse) {
 function formatter(type, data) {
   var content = "";
   if (type == "professors") {
-    // window.profs_items[window.profs_items.indexOf("課業壓力")] = "課程涼度";
+    // data = urschool 的一筆老師資料；跳過 姓名／授課系所／職稱（已在卡片標題）
     var score = ["私心推薦", "學到東西", "口條好", "給分甜度"];
-    for (const key in data) {
-      if (Array.isArray(data[key][0])) {
-        for (var i = 0; i < 9; i++) {
-          if (data[key][0][i] != null) {
-            content += `
-            <p style="clear: both;"><span style="float: left;"><b>${window.profs_items[i]
-              }：</b></span><span style="float: right;">`;
-            if (score.includes(window.profs_items[i])) {
-              content += color_text(data[key][0][i].replace(" ★", ""), false);
-            } else if ("課業壓力" == window.profs_items[i]) {
-              content += color_text(data[key][0][i].replace(" ★", ""), true);
-            } else content += shorten_string(data[key][0][i], 9);
-            content += "</span></p>";
-          }
-        }
-      } else {
-        content +=
-          `<p style="clear: both;"><span style="float: left;"><b>${key}</b></span>:<span style="float: right;">${data[key][0].res
-          }</span></p>`;
-      }
+    for (var i = 3; i < 9; i++) {
+      var item = window.profs_items[i];
+      if (data[i] == null) continue;
+      var value = String(data[i]).replace(" ★", "");
+      content += `<p class="prof-row"><b>${item}</b><span>`;
+      if (score.includes(item)) content += color_text(value, false);
+      else if (item == "課業壓力") content += color_text(value, true);
+      else content += shorten_string(value, 9);
+      content += "</span></p>";
     }
+    if (!content) content = `<p class="prof-empty">UR School 上還沒有評分</p>`;
   }
   if (type == "courses") {
     var items = ["收穫", "涼度", "甜度"];
@@ -58,11 +48,15 @@ function formatter(type, data) {
   }
   return content;
 }
-function fillin_popup(course_name, data, category) {
-  course_name = shorten_string(course_name, 11);
+function fillin_popup(name, entry, course_name) {
+  var meta = entry ? [entry[1], entry[2]].filter((x) => x).join(" · ") : "";
+  var body = entry
+    ? formatter("professors", entry)
+    : `<p class="prof-empty">UR School 沒有這位老師的資料🥺</p>`;
   $("#popup > .content").html(`
-      <div class="header">${course_name}</div>
-      <div class="description">${formatter(category, data)}</div>
+      <div class="header">${name}</div>
+      <div class="meta prof-meta">${meta || shorten_string(course_name, 14)}</div>
+      <div class="description">${body}</div>
 `);
   $(`#popup`).removeClass("hidden").addClass("visible");
 }
@@ -88,58 +82,59 @@ function has_course_rating(course_data, course_id, course_name) {
   );
 }
 
-function make_btn(course_name, td, trIdx, course_id, category) {
-  $(td).removeClass("sm");
-  // console.log(td.querySelector("a").innerHTML);
-  try {
-    var content = `
-            <div class="${category != "courses" ? "medium fluid ui button my-button" : ""
-      } " id="button-${category}-${trIdx}">
-             ${category == "courses" ? td.querySelector("a").innerHTML : td.innerHTML
-      }
-            </div>
-            `;
-    if (category == "courses") {
-      td.querySelector("a").innerHTML = content;
-      // if (!$(td).children(".ips").length) $(td).find("br").remove();
-    } else td.innerHTML = content;
-  } catch {
-    console.log("😵");
-  }
-  $(`#button-${category}-${trIdx}`)
-    .mouseenter(function () {
-      // filter data
-      // $(`#popup`).removeClass("visible").addClass("hidden");
-      if (category == "professors") {
-        var value = $(td).text().trim().replace("*", "<br>").split("<br>")[0];
-        var prof_data = get_info(value, category);
-        console.log("👋:" + value);
-        fillin_popup(course_name, prof_data, category);
-      } else {
-        // var course_data = get_info(course_id, category);
-        console.log("👋:" + course_id);
-        // fillin_popup(course_name, course_data, category);
-      }
-    })
-    .mouseleave(function () {
-      $("#popup").removeClass("visible").addClass("hidden");
-    })
-    .click(function () {
-      if (category == "professors") {
-        var value = $(td).text().trim().replace("*", "<br>").split("<br>")[0];
-        var prof_data = get_info(value, category);
-        if (Array.isArray(Object.values(prof_data)[0][0])) {
-          window
-            .open(
-              "https://urschool.org/teacher/" +
-              Object.values(prof_data)[0][0].slice(-1)[0],
-              "_blank",
-            )
-            .focus();
-        }
-      }
-    });
+// 從 urschool 找老師；同名的老師有好幾位時，優先用有評分的那筆
+function find_professor(name) {
+  var entries = ((window.json_data["urschool"] || {})["professors"] || {})[name];
+  if (!Array.isArray(entries) || !entries.length) return null;
+  return entries.find((e) => e[3] != null) || entries[0];
 }
+// 老師欄位 → [{ name, main }]，格式像「王小明*<br>李大華<br>…」，* 為主負責老師
+function parse_professors(td) {
+  return td.innerHTML
+    .split(/<br\s*\/?>|\n|、/)
+    .map((html) => $("<div>").html(html).text().trim())
+    .filter((text) => text)
+    .map((text) => ({ name: text.replace(/\*/g, "").trim(), main: text.includes("*") }));
+}
+var PROF_COLLAPSE_OVER = 4; // 超過這麼多位老師就收合
+var PROF_SHOW_WHEN_COLLAPSED = 3;
+function professor_chip(prof, course_name) {
+  var entry = find_professor(prof.name);
+  var rated = entry && entry[3] != null;
+  var badge = rated
+    ? `<span class="prof-score">${color_text(String(entry[3]).replace(" ★", ""), false)}</span>`
+    : "";
+  var chip = $(
+    `<span class="prof-chip${prof.main ? " prof-main" : ""}${entry ? "" : " prof-none"}">${prof.name}${badge}</span>`,
+  );
+  chip
+    .mouseenter(() => fillin_popup(prof.name, entry, course_name))
+    .mouseleave(() => $("#popup").removeClass("visible").addClass("hidden"));
+  return { chip, rated };
+}
+function render_professors(td, course_name) {
+  var profs = parse_professors(td);
+  if (!profs.length) return;
+  var chips = profs.map((p) => ({ main: p.main, ...professor_chip(p, course_name) }));
+  // 主負責老師 → 有評分 → 沒評分，同一組內維持原本順序
+  var rank = (c) => (c.main ? 0 : c.rated ? 1 : 2);
+  chips = chips.map((c, i) => ({ ...c, i })).sort((a, b) => rank(a) - rank(b) || a.i - b.i);
+
+  var list = $(`<div class="prof-list"></div>`);
+  chips.forEach((c) => list.append(c.chip));
+  if (chips.length > PROF_COLLAPSE_OVER) {
+    var hidden = chips.slice(PROF_SHOW_WHEN_COLLAPSED).map((c) => c.chip);
+    hidden.forEach((chip) => chip.addClass("prof-extra"));
+    var more = $(`<span class="prof-more">+${hidden.length} 位</span>`);
+    more.click(() => {
+      var open = list.toggleClass("prof-open").hasClass("prof-open");
+      more.text(open ? "收合" : `+${hidden.length} 位`);
+    });
+    list.append(more);
+  }
+  $(td).removeClass("sm").empty().append(list);
+}
+
 // 標準差（1~10 分制）→ 意見分散程度
 function spread_text(sd) {
   if (sd == null) return "";
@@ -204,7 +199,7 @@ function modify_html() {
           }
         }
         if (tdIdx == 6 && $(td).text().trim()) {
-          make_btn(course_name, td, trIdx, course_id, "professors");
+          render_professors(td, course_name);
         }
       });
   });

@@ -226,3 +226,67 @@ my-text {
   margin-top: 4px;
   font-size: 11px;
 }
+
+/* 老師名牌（可多位老師） */
+.prof-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.prof-chip,
+.prof-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 7px;
+  border-radius: 10px;
+  background: #e8e8e8;
+  color: #333;
+  font-size: 0.95em;
+  line-height: 1.6;
+  white-space: nowrap;
+  cursor: default;
+}
+.prof-chip:hover {
+  background: #d4d4d5;
+}
+.prof-main {
+  font-weight: bold;
+}
+.prof-none {
+  color: #999;
+  background: #f3f3f3;
+}
+.prof-score {
+  padding: 0 4px;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 0.9em;
+}
+.prof-list .prof-extra {
+  display: none;
+}
+.prof-list.prof-open .prof-extra {
+  display: inline-flex;
+}
+.prof-more {
+  background: transparent;
+  color: #a5673f;
+  cursor: pointer;
+  text-decoration: underline;
+}
+#popup .prof-meta {
+  margin: 2px 0 6px;
+  font-size: 0.9em;
+  color: #888;
+}
+#popup .prof-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0;
+}
+#popup .prof-empty {
+  margin: 0;
+  color: #888;
+}
