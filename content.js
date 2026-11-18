@@ -45,30 +45,14 @@ function formatter(type, data) {
   if (type == "courses") {
     var items = ["收穫", "涼度", "甜度"];
     var color_table = ["red", "orange", "yellow", "olive", "green"];
-    content += `
-    <div class="ui divided selection list">`;
     for (const key in data) {
-      if (Array.isArray(data[key]) && data[key][0] != "0.0") {
-        for (var i = 0; i < 3; i++) {
-          content += `
+      for (var i = 0; i < 3; i++) {
+        var score = Math.round(parseFloat(data[key][i]));
+        content += `
           <div class="ui label my-label" style="padding-left: 5px !important">
   ${items[i]}
-  <div class="ui ${color_table[Math.round(parseInt(data[key][i]) / 2.5)]
-            } label my-label">${parseInt(data[key][i])}</div>
+  <div class="ui ${color_table[Math.round(score / 2.5)]} label my-label">${score}</div>
 </div>`;
-          // <a class="item" style="clear: both;">
-          // <span style="float: left; margin: 10px 0;"><b>${
-          //   items[i]
-          // }：</b></span><div class="ui ${
-          //   color_table[parseInt(Math.round(parseFloat(data[key][i]) / 2.5))]
-          // } label my-label" style="float: right; margin: 4px 0;">${Math.round(
-          //   parseFloat(data[key][i])
-          // )}
-          // </div>
-          // </a>`;
-        }
-      } else {
-        content += `<div class="my-course-label">找不到資料🥺</div>`;
       }
     }
   }
@@ -84,13 +68,24 @@ function fillin_popup(course_name, data, category) {
 }
 function get_info(value, category) {
   var data = {};
-  params = { professors: "urschool", courses: "nckuhub" };
-  if (value in window.json_data[params[category]][category]) {
-    data[value] = window.json_data[params[category]][category][value];
+  var params = { professors: "urschool", courses: "nckuhub" };
+  var source = (window.json_data[params[category]] || {})[category] || {};
+  if (Object.prototype.hasOwnProperty.call(source, value)) {
+    data[value] = source[value];
   } else {
     data[value] = [{ res: "找不到資料🥺" }];
   }
   return data;
+}
+// NCKU Hub 有這門課、課名相符、而且至少有一筆評分
+function has_course_rating(course_data, course_id, course_name) {
+  var row = course_data[course_id];
+  return (
+    Array.isArray(row) &&
+    row.length > 3 &&
+    row[3]["課程名稱"] == course_name &&
+    parseFloat(row[0]) > 0
+  );
 }
 
 function make_btn(course_name, td, trIdx, course_id, category) {
@@ -147,59 +142,38 @@ function make_btn(course_name, td, trIdx, course_id, category) {
 }
 function modify_html() {
   $("table.table > thead  > tr > th:nth-child(7)")[0].style.width = "11%";
-  // var profs_set = new Set();
   $("table.table > tbody  > tr:visible").each(function (trIdx, tr) {
-    course_name = $(tr).find(".course_name").text().trim();
-    course_id = $(tr).find(".dept_seq").text().trim();
+    var course_name = $(tr).find(".course_name").text().trim();
+    var course_id = $(tr).find(".dept_seq").text().trim();
     $(tr)
       .find("td")
       .each(function (tdIdx, td) {
-        if (tdIdx == 4) {
-          // make_btn(course_name, td, trIdx, course_id, "courses");
+        if (tdIdx == 4 && course_id) {
           var course_data = get_info(course_id, "courses");
-          if (
-            course_data[course_id].length > 1 &&
-            course_data[course_id][3]["課程名稱"] == course_name
-          ) {
+          if (has_course_rating(course_data, course_id, course_name)) {
             $(td).append(`<div class="ui labels my-labels">
                         ${formatter("courses", course_data)}</div>`);
           } else {
-            $(td).append(
-              `<div class="my-course-label">找不到資料🥺</div>`,
-            );
+            $(td).append(`<div class="my-course-label">找不到資料🥺</div>`);
           }
         }
-        if (tdIdx == 6) {
+        if (tdIdx == 6 && $(td).text().trim()) {
           make_btn(course_name, td, trIdx, course_id, "professors");
         }
       });
   });
 }
 
-// 接收資料
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  console.log("🐍");
-  switch (request.method) {
-    case "response_data":
-      if (Object.keys(request.json_data).length != 0) {
-        window.json_data = request.json_data;
-        window.profs_items = window.json_data["urschool"]["column names"];
-        modify_html();
-        sendResponse({ complete: "ok" });
-        $(".loading-btn").remove();
-      }
-      break;
-    default:
-      location.reload();
-      break;
-    // 他是被逼ㄉ
-  }
-  return true;
-});
+function on_data(json_data) {
+  window.json_data = json_data;
+  window.profs_items = (json_data["urschool"] || {})["column names"] || [];
+  modify_html();
+  $(".loading-btn").remove();
+}
 
 if (
   $("table.table").length > 0 &&
-  $("table.table > thead  > tr > th:nth-child(7)").html().includes("教師姓名")
+  ($("table.table > thead  > tr > th:nth-child(7)").html() || "").includes("教師姓名")
 ) {
   $("body").append(
     `<div class="loading-btn"><i class="fa fa-spinner fa-spin"></i></div>`,
@@ -211,13 +185,12 @@ if (
   </div>`,
   );
   chrome.runtime.sendMessage({ method: "get_data" }, function (response) {
-    switch (response.complete) {
-      case "ok":
-        console.log("👌");
-        break;
-      default:
-        console.log("📛");
-        break;
+    if (response && response.complete == "ok") {
+      console.log("👌");
+      on_data(response.json_data);
+    } else {
+      console.log("📛", chrome.runtime.lastError || response);
+      $(".loading-btn").remove();
     }
   });
 }
