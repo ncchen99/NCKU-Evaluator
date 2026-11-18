@@ -25,48 +25,34 @@ function formatter(type, data) {
         for (var i = 0; i < 9; i++) {
           if (data[key][0][i] != null) {
             content += `
-            <p style="clear: both;"><span style="float: left;"><b>${window.profs_items[i]}：</b></span><span style="float: right;">`;
-            if (score.includes(window.profs_items[i]))
+            <p style="clear: both;"><span style="float: left;"><b>${window.profs_items[i]
+              }：</b></span><span style="float: right;">`;
+            if (score.includes(window.profs_items[i])) {
               content += color_text(data[key][0][i].replace(" ★", ""), false);
-            else if ("課業壓力" == window.profs_items[i])
+            } else if ("課業壓力" == window.profs_items[i]) {
               content += color_text(data[key][0][i].replace(" ★", ""), true);
-            else content += shorten_string(data[key][0][i], 9);
+            } else content += shorten_string(data[key][0][i], 9);
             content += "</span></p>";
           }
         }
       } else {
-        content += `<p style="clear: both;"><span style="float: left;"><b>${key}</b></span>:<span style="float: right;">${data[key][0].res}</span></p>`;
+        content +=
+          `<p style="clear: both;"><span style="float: left;"><b>${key}</b></span>:<span style="float: right;">${data[key][0].res
+          }</span></p>`;
       }
     }
   }
   if (type == "courses") {
     var items = ["收穫", "涼度", "甜度"];
     var color_table = ["red", "orange", "yellow", "olive", "green"];
-    content += `
-    <div class="ui divided selection list">`;
     for (const key in data) {
-      if (Array.isArray(data[key]) && data[key][0] != "0.0") {
-        for (var i = 0; i < 3; i++) {
-          content += `
+      for (var i = 0; i < 3; i++) {
+        var score = Math.round(parseFloat(data[key][i]));
+        content += `
           <div class="ui label my-label" style="padding-left: 5px !important">
   ${items[i]}
-  <div class="ui ${
-    color_table[Math.round(parseInt(data[key][i]) / 2.5)]
-  } label my-label">${parseInt(data[key][i])}</div>
+  <div class="ui ${color_table[Math.round(score / 2.5)]} label my-label">${score}</div>
 </div>`;
-          // <a class="item" style="clear: both;">
-          // <span style="float: left; margin: 10px 0;"><b>${
-          //   items[i]
-          // }：</b></span><div class="ui ${
-          //   color_table[parseInt(Math.round(parseFloat(data[key][i]) / 2.5))]
-          // } label my-label" style="float: right; margin: 4px 0;">${Math.round(
-          //   parseFloat(data[key][i])
-          // )}
-          // </div>
-          // </a>`;
-        }
-      } else {
-        content += `<div class="my-course-label">找不到資料🥺</div>`;
       }
     }
   }
@@ -82,63 +68,50 @@ function fillin_popup(course_name, data, category) {
 }
 function get_info(value, category) {
   var data = {};
-  params = { professors: "urschool", courses: "nckuhub" };
-  if (value in window.json_data[params[category]][category]) {
-    data[value] = window.json_data[params[category]][category][value];
+  var params = { professors: "urschool", courses: "nckuhub" };
+  var source = (window.json_data[params[category]] || {})[category] || {};
+  if (Object.prototype.hasOwnProperty.call(source, value)) {
+    data[value] = source[value];
   } else {
     data[value] = [{ res: "找不到資料🥺" }];
   }
   return data;
 }
-
-// filters out all blocks of plain text as a string array
-// reference: https://stackoverflow.com/questions/68364942/get-innertext-and-split-by-br
-function html_filter(html) {
-  return html.replace(/\n/g, "<br>").split("<br>").map(e => e.replace(/\<(.*)\>/g, '').trim()).filter(e => e)
+// NCKU Hub 有這門課、課名相符、而且至少有一筆評分
+function has_course_rating(course_data, course_id, course_name) {
+  var row = course_data[course_id];
+  return (
+    Array.isArray(row) &&
+    row.length > 3 &&
+    row[3]["課程名稱"] == course_name &&
+    parseFloat(row[0]) > 0
+  );
 }
 
-// turns a html string to an element
-function htmlToElem(html) {
-  let temp = document.createElement('template');
-  html = html.trim(); // Never return a space text node as a result
-  temp.innerHTML = html;
-  return temp.content.firstChild;
-}
-
-// turns td into button(s)
-// if the content of td contains two or more lines, it will call make_btn() multiple times, thus generating multiple buttons
-function td2btn(course_name, td, trIdx, course_id, category) {
+function make_btn(course_name, td, trIdx, course_id, category) {
   $(td).removeClass("sm");
-  td_content = category == "courses"
-    ? td.querySelector("a").innerHTML
-    : html_filter(td.innerHTML)
-  td.innerHTML = '';
-
-  td_content.forEach(element => make_btn(course_name,td,trIdx,course_id,category,element.replace("*", "")))
-}
-
-function make_btn(course_name, td, trIdx, course_id, category, value) {
+  // console.log(td.querySelector("a").innerHTML);
   try {
     var content = `
-            <div class="${
-              category != "courses" ? "medium fluid ui button my-button" : ""
-            } " id="button-${category}-${trIdx}-${value}">
-             ${value}
+            <div class="${category != "courses" ? "medium fluid ui button my-button" : ""
+      } " id="button-${category}-${trIdx}">
+             ${category == "courses" ? td.querySelector("a").innerHTML : td.innerHTML
+      }
             </div>
             `;
     if (category == "courses") {
-      td.querySelector("a").appendChild(htmlToElem(content));
+      td.querySelector("a").innerHTML = content;
       // if (!$(td).children(".ips").length) $(td).find("br").remove();
-    } else td.appendChild(htmlToElem(content));
+    } else td.innerHTML = content;
   } catch {
     console.log("😵");
   }
-  $(`#button-${category}-${trIdx}-${value}`)
+  $(`#button-${category}-${trIdx}`)
     .mouseenter(function () {
       // filter data
       // $(`#popup`).removeClass("visible").addClass("hidden");
       if (category == "professors") {
-        var value = $(this)[0].innerText;
+        var value = $(td).text().trim().replace("*", "<br>").split("<br>")[0];
         var prof_data = get_info(value, category);
         console.log("👋:" + value);
         fillin_popup(course_name, prof_data, category);
@@ -153,82 +126,118 @@ function make_btn(course_name, td, trIdx, course_id, category, value) {
     })
     .click(function () {
       if (category == "professors") {
-        var value = $(this)[0].innerText;
+        var value = $(td).text().trim().replace("*", "<br>").split("<br>")[0];
         var prof_data = get_info(value, category);
-        if (Array.isArray(Object.values(prof_data)[0][0]))
+        if (Array.isArray(Object.values(prof_data)[0][0])) {
           window
             .open(
               "https://urschool.org/teacher/" +
-                Object.values(prof_data)[0][0].slice(-1)[0],
-              "_blank"
+              Object.values(prof_data)[0][0].slice(-1)[0],
+              "_blank",
             )
             .focus();
+        }
       }
+    });
+}
+// 標準差（1~10 分制）→ 意見分散程度
+function spread_text(sd) {
+  if (sd == null) return "";
+  if (sd < 1.5) return "一致";
+  if (sd < 2.5) return "有分歧";
+  return "兩極";
+}
+// 滑鼠移到 NCKU Hub 評分上時顯示的簡短說明
+function hub_tooltip_html(row) {
+  var stats = row[4];
+  if (!stats) return "";
+  var n = stats["人數"];
+  var sd = stats["標準差"] || [];
+  var items = ["收穫", "涼度", "甜度"];
+  var html = `<div class="hub-tip-title">${n} 人評分${n < 5 ? "<span class='hub-tip-note'>（人數少，僅供參考）</span>" : ""}</div>`;
+  for (var i = 0; i < 3; i++) {
+    var mean = parseFloat(row[i]).toFixed(1);
+    html += `<div class="hub-tip-row"><span>${items[i]}</span><b>${mean}</b>`;
+    if (sd[i] != null) {
+      html += `<span class="hub-tip-sd">± ${sd[i].toFixed(1)}</span><span class="hub-tip-spread hub-${spread_text(sd[i])}">${spread_text(sd[i])}</span>`;
+    }
+    html += `</div>`;
+  }
+  if (sd.some((x) => x != null)) {
+    html += `<div class="hub-tip-foot">± 為標準差，越大代表大家看法越不同</div>`;
+  }
+  return html;
+}
+function bind_hub_tooltip(el, row) {
+  var html = hub_tooltip_html(row);
+  if (!html) return;
+  $(el)
+    .mouseenter(function () {
+      var tip = $("#hub-tip").html(html).addClass("show");
+      var rect = el.getBoundingClientRect();
+      var top = rect.top - tip.outerHeight() - 8;
+      if (top < 8) top = rect.bottom + 8;
+      var left = Math.min(rect.left, window.innerWidth - tip.outerWidth() - 8);
+      tip.css({ top: top, left: Math.max(8, left) });
+    })
+    .mouseleave(function () {
+      $("#hub-tip").removeClass("show");
     });
 }
 function modify_html() {
   $("table.table > thead  > tr > th:nth-child(7)")[0].style.width = "11%";
-  // var profs_set = new Set();
   $("table.table > tbody  > tr:visible").each(function (trIdx, tr) {
-    course_name = $(tr).find(".course_name").text().trim();
-    course_id = $(tr).find(".dept_seq").text().trim();
+    var course_name = $(tr).find(".course_name").text().trim();
+    var course_id = $(tr).find(".dept_seq").text().trim();
     $(tr)
       .find("td")
       .each(function (tdIdx, td) {
-        if (tdIdx == 4) {
-          // make_btn(course_name, td, trIdx, course_id, "courses");
+        if (tdIdx == 4 && course_id) {
           var course_data = get_info(course_id, "courses");
-          if (
-            course_data[course_id].length > 1 &&
-            course_data[course_id][3]["課程名稱"] == course_name
-          )
-            $(td).append(`<div class="ui labels my-labels">
+          if (has_course_rating(course_data, course_id, course_name)) {
+            var labels = $(`<div class="ui labels my-labels">
                         ${formatter("courses", course_data)}</div>`);
-          else $(td).append(`<div class="my-course-label">找不到資料🥺</div>`);
+            $(td).append(labels);
+            bind_hub_tooltip(labels[0], course_data[course_id]);
+          } else {
+            $(td).append(`<div class="my-course-label">找不到資料🥺</div>`);
+          }
         }
-        if (tdIdx == 6) {
-          td2btn(course_name, td, trIdx, course_id, "professors");
+        if (tdIdx == 6 && $(td).text().trim()) {
+          make_btn(course_name, td, trIdx, course_id, "professors");
         }
       });
   });
 }
 
-// 接收資料
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  console.log("🐍");
-  if (request.method == "response_data") {
-    if (Object.keys(request.json_data).length != 0) {
-      window.json_data = request.json_data;
-      window.profs_items = window.json_data["urschool"]["column names"];
-      modify_html();
-      sendResponse({ complete: "ok" });
-      $(".loading-btn").remove();
-    } else {
-      location.reload();
-      // 他是被逼ㄉ
-    }
-  }
-  return true;
-});
+function on_data(json_data) {
+  window.json_data = json_data;
+  window.profs_items = (json_data["urschool"] || {})["column names"] || [];
+  modify_html();
+  $(".loading-btn").remove();
+}
 
 if (
   $("table.table").length > 0 &&
-  $("table.table > thead  > tr > th:nth-child(7)").html().includes("教師姓名")
+  ($("table.table > thead  > tr > th:nth-child(7)").html() || "").includes("教師姓名")
 ) {
   $("body").append(
-    `<div class="loading-btn"><i class="fa fa-spinner fa-spin"></i></div>`
+    `<div class="loading-btn"><i class="fa fa-spinner fa-spin"></i></div>`,
   );
+  $("body").append(`<div id="hub-tip"></div>`);
   $("body").append(
     `<div class="ui card" id="popup">
     <div class="content">
     </div>
-  </div>`
+  </div>`,
   );
   chrome.runtime.sendMessage({ method: "get_data" }, function (response) {
-    if (response.complete == "ok") {
+    if (response && response.complete == "ok") {
       console.log("👌");
+      on_data(response.json_data);
     } else {
-      console.log("📛");
+      console.log("📛", chrome.runtime.lastError || response);
+      $(".loading-btn").remove();
     }
   });
 }

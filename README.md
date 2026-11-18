@@ -1,6 +1,10 @@
 # NCKU-Evaluator
 一款 Chrome Extension 為成大選課系統注入來自 urschool 和 nckuhub 的評價🤖 還在努力開發，最近比較忙🥺 歡迎發 PR 😍
 
+> **資料來源狀態（2026-11）**
+> - nckuhub：每次執行 [ncku-evaluation](https://github.com/ncchen99/ncku-evaluation/tree/data) 的爬蟲都會抓當學期最新的課程評價。
+> - urschool：urschool.org 已在 2026 年初停止服務，老師評價停在 2025-06 最後一次抓到的資料，不會再更新。
+
 ## 1. 下載下來
 ![image](https://user-images.githubusercontent.com/28551630/160381597-8b5a2182-eee9-4e33-bcbf-e839f237c310.png)
 
@@ -17,7 +21,6 @@
 ![image](https://user-images.githubusercontent.com/28551630/160381971-53991a08-7d9e-4440-88ff-40d3732c0162.png)
 
 ## 到成大選課的地方應該會長這樣🥳
-#### 第一次使用可能需要重新整理網頁幾次（處理不好的 bug 敬請見諒，歡迎發 PR 幫我解決）
 ![image](https://user-images.githubusercontent.com/28551630/160382028-f67c1bac-b2d3-41f0-bd75-5d39007ff942.png)
 
 ![image](https://user-images.githubusercontent.com/28551630/160381496-d1e36d6e-afca-4611-8a9b-1fc8f0e12dca.png)

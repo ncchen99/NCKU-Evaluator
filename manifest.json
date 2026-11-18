@@ -1,13 +1,16 @@
 {
   "name": "NCKU Evaluator",
   "description": "為成大選課系統注入來自 urschool 和 nckuhub 的評價🤖",
-  "version": "1.0",
+  "version": "1.2",
   "manifest_version": 3,
   "host_permissions": [
     "https://ncchen99.github.io/*",
     "https://raw.githubusercontent.com/*"
   ],
-  "permissions": ["storage", "activeTab"],
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
   "background": {
     "service_worker": "background.js"
   },
@@ -23,8 +26,10 @@
   },
   "content_scripts": [
     {
-      "run_at": "document_idle",
-      "matches": ["https://course.ncku.edu.tw/*"],
+      "run_at": "document_end",
+      "matches": [
+        "https://course.ncku.edu.tw/*"
+      ],
       "css": [
         "./3rd party/Semantic-UI/semantic.css",
         "./assets/css/custom.css",
