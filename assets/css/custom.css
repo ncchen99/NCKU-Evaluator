@@ -165,3 +165,64 @@ my-text {
     opacity: 0;
   }
 }
+
+/* NCKU Hub 評分的 tooltip */
+.my-labels {
+  cursor: help;
+}
+#hub-tip {
+  position: fixed;
+  z-index: 1001;
+  display: none;
+  padding: 8px 10px;
+  min-width: 170px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #fff;
+  background: rgba(33, 33, 33, 0.94);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+#hub-tip.show {
+  display: block;
+}
+.hub-tip-title {
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+.hub-tip-note,
+.hub-tip-foot,
+.hub-tip-sd {
+  color: #bdbdbd;
+  font-weight: normal;
+}
+.hub-tip-row {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+.hub-tip-row b {
+  min-width: 2em;
+}
+.hub-tip-sd {
+  min-width: 3.2em;
+}
+.hub-tip-spread {
+  padding: 0 5px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+.hub-一致 {
+  background: #148f77;
+}
+.hub-有分歧 {
+  background: #b9770e;
+}
+.hub-兩極 {
+  background: #b03a2e;
+}
+.hub-tip-foot {
+  margin-top: 4px;
+  font-size: 11px;
+}

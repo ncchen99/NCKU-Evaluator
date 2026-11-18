@@ -1,7 +1,7 @@
 {
   "name": "NCKU Evaluator",
   "description": "為成大選課系統注入來自 urschool 和 nckuhub 的評價🤖",
-  "version": "1.1",
+  "version": "1.2",
   "manifest_version": 3,
   "host_permissions": [
     "https://ncchen99.github.io/*",

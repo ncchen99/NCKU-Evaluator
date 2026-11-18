@@ -140,6 +140,50 @@ function make_btn(course_name, td, trIdx, course_id, category) {
       }
     });
 }
+// 標準差（1~10 分制）→ 意見分散程度
+function spread_text(sd) {
+  if (sd == null) return "";
+  if (sd < 1.5) return "一致";
+  if (sd < 2.5) return "有分歧";
+  return "兩極";
+}
+// 滑鼠移到 NCKU Hub 評分上時顯示的簡短說明
+function hub_tooltip_html(row) {
+  var stats = row[4];
+  if (!stats) return "";
+  var n = stats["人數"];
+  var sd = stats["標準差"] || [];
+  var items = ["收穫", "涼度", "甜度"];
+  var html = `<div class="hub-tip-title">${n} 人評分${n < 5 ? "<span class='hub-tip-note'>（人數少，僅供參考）</span>" : ""}</div>`;
+  for (var i = 0; i < 3; i++) {
+    var mean = parseFloat(row[i]).toFixed(1);
+    html += `<div class="hub-tip-row"><span>${items[i]}</span><b>${mean}</b>`;
+    if (sd[i] != null) {
+      html += `<span class="hub-tip-sd">± ${sd[i].toFixed(1)}</span><span class="hub-tip-spread hub-${spread_text(sd[i])}">${spread_text(sd[i])}</span>`;
+    }
+    html += `</div>`;
+  }
+  if (sd.some((x) => x != null)) {
+    html += `<div class="hub-tip-foot">± 為標準差，越大代表大家看法越不同</div>`;
+  }
+  return html;
+}
+function bind_hub_tooltip(el, row) {
+  var html = hub_tooltip_html(row);
+  if (!html) return;
+  $(el)
+    .mouseenter(function () {
+      var tip = $("#hub-tip").html(html).addClass("show");
+      var rect = el.getBoundingClientRect();
+      var top = rect.top - tip.outerHeight() - 8;
+      if (top < 8) top = rect.bottom + 8;
+      var left = Math.min(rect.left, window.innerWidth - tip.outerWidth() - 8);
+      tip.css({ top: top, left: Math.max(8, left) });
+    })
+    .mouseleave(function () {
+      $("#hub-tip").removeClass("show");
+    });
+}
 function modify_html() {
   $("table.table > thead  > tr > th:nth-child(7)")[0].style.width = "11%";
   $("table.table > tbody  > tr:visible").each(function (trIdx, tr) {
@@ -151,8 +195,10 @@ function modify_html() {
         if (tdIdx == 4 && course_id) {
           var course_data = get_info(course_id, "courses");
           if (has_course_rating(course_data, course_id, course_name)) {
-            $(td).append(`<div class="ui labels my-labels">
+            var labels = $(`<div class="ui labels my-labels">
                         ${formatter("courses", course_data)}</div>`);
+            $(td).append(labels);
+            bind_hub_tooltip(labels[0], course_data[course_id]);
           } else {
             $(td).append(`<div class="my-course-label">找不到資料🥺</div>`);
           }
@@ -178,6 +224,7 @@ if (
   $("body").append(
     `<div class="loading-btn"><i class="fa fa-spinner fa-spin"></i></div>`,
   );
+  $("body").append(`<div id="hub-tip"></div>`);
   $("body").append(
     `<div class="ui card" id="popup">
     <div class="content">
